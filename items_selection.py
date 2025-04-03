@@ -5,7 +5,6 @@ Selection Page for Sustainability Constraints in the Sustainable Index Dashboard
 import streamlit as st
 import os
 import pandas as pd
-from st_aggrid import AgGrid, GridOptionsBuilder
 
 @st.cache_data
 def load_data():
