@@ -329,7 +329,6 @@ def get_weights(review_dates, review_data, sustainable_factors, excluded_subsect
         max_attempts = len(sustainable_factors)  # Safe stop condition
 
         while not solved and attempts < max_attempts:
-            print(f"\nAttempt {attempts + 1} with factors: {active_factors}")
 
             tilted_weights_date = solve_with_capping(
                 weights,
@@ -405,6 +404,9 @@ def get_targets(review_data, sustainable_factors, targets, annual_trajectory_rat
     review_dates = sorted(review_data["Review Date"].unique())
     targets_df = pd.DataFrame({"Review Date": review_dates})
 
+    # Set exact target based on the maximum annual trajectory rate
+    exact_target = sustainable_factors[np.argmax(annual_trajectory_rate)] if np.any(annual_trajectory_rate > 0) else sustainable_factors[np.argmax(targets)]
+
     for i, factor in enumerate(sustainable_factors):
         base_date = review_dates[0]
         review_base = review_data[review_data["Review Date"] == base_date]
@@ -430,12 +432,13 @@ def get_targets(review_data, sustainable_factors, targets, annual_trajectory_rat
         targets_df[f"ReviewIntensity_{factor}"] = bmk_intensities
         targets_df[f"TargetLevel_{factor}"] = target_levels
         targets_df[f"TargetValue_{factor}"] = target_values
-        targets_df[f"AnnualRate_{factor}"] = rate
-        targets_df[f"TargetLevelFromBaseBenchmark{factor}"] = np.where(targets_df[f"AnnualRate_{factor}"] != 0, targets_df[f"TargetValue_{factor}"] / targets_df[f"BaseIntensity_{factor}"], targets_df[f"TargetLevel_{factor}"])
+        #targets_df[f"AnnualRate_{factor}"] = rate
+        #targets_df[f"TargetLevelFromBaseBenchmark{factor}"] = np.where(targets_df[f"AnnualRate_{factor}"] != 0, targets_df[f"TargetValue_{factor}"] / targets_df[f"BaseIntensity_{factor}"], targets_df[f"TargetLevel_{factor}"])
 
     # Find the column name with the minimum value for each row
-    targets_df['LargestReductionItem'] = targets_df[[f"TargetLevelFromBaseBenchmark{factor}" for factor in sustainable_factors]].idxmin(axis=1)
-    targets_df["LargestReductionItem"] = targets_df["LargestReductionItem"].str.replace("TargetLevelFromBaseBenchmark", "")
+    #targets_df['LargestReductionItem'] = targets_df[[f"TargetLevelFromBaseBenchmark{factor}" for factor in sustainable_factors]].idxmin(axis=1)
+    #targets_df["LargestReductionItem"] = targets_df["LargestReductionItem"].str.replace("TargetLevelFromBaseBenchmark", "")
+    targets_df["LargestReductionItem"] = exact_target
 
     return targets_df
 
