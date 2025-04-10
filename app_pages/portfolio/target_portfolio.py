@@ -90,20 +90,10 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
     )
     
     if np.all(is_satisfied):
-        print("✓ Exposures satisfied after capping (at or below targets)")
-        for i, (current, target) in enumerate(zip(current_exposures, target_exposures)):
-            below = current < target
-            status = "below target" if below else "within tolerance"
-            print(f"  Factor {i}: {current:.6f} vs target {target:.6f} ({status})")
         return weights
     
     # Only consider differences for exposures that aren't satisfied
     unsatisfied_idx = ~is_satisfied
-    if unsatisfied_idx.any():
-        print(f"! Some exposures not satisfied after capping. Attempting to adjust...")
-        for i, (satisfied, current, target) in enumerate(zip(is_satisfied, current_exposures, target_exposures)):
-            status = "OK" if satisfied else "VIOLATED"
-            print(f"  Factor {i}: {current:.6f} vs target {target:.6f} - {status}")
     
     # Define weight bounds
     capacity_ratio = config["Capacity Ratio"]
@@ -150,7 +140,6 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
         )
         
         if not result.success:
-            print(f"  Attempt {attempt+1}: Failed to find new tilts")
             continue
         
         # Apply new tilts
@@ -160,7 +149,6 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
         # Cap weights again
         capped_weights = capping(tilted_weights, lower_bounds, upper_bounds)
         if capped_weights is None:
-            print(f"  Attempt {attempt+1}: Failed to cap weights")
             continue
         
         # Check exposures
@@ -174,11 +162,6 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
             new_diff < 0                # Below target
         )
         
-        print(f"  Attempt {attempt+1}:")
-        for i, (satisfied, value, target) in enumerate(zip(new_is_satisfied, new_exposures, target_exposures)):
-            status = "OK" if satisfied else "VIOLATED"
-            print(f"    Factor {i}: {value:.6f} vs target {target:.6f} - {status}")
-        
         # Only consider unsatisfied exposures for error calculation
         unsatisfied_exposures = ~new_is_satisfied
         if unsatisfied_exposures.any():
@@ -186,7 +169,7 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
         else:
             new_error_score = 0
         
-        print(f"    Error score: {new_error_score}")
+        
         
         # Keep the best result
         if new_error_score < min_error_score or np.all(new_is_satisfied):
@@ -195,7 +178,7 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
             
             # If all exposures are satisfied, we're done
             if np.all(new_is_satisfied):
-                print("✓ Found weights that satisfy both constraints and exposures")
+                
                 return best_weights
     
     # Check if best weights satisfy our criteria
@@ -205,16 +188,7 @@ def verify_and_adjust_exposures(weights, factor_scores, target_exposures, tilt_f
         np.abs(final_diff) <= tolerance,
         final_diff < 0
     )
-    
-    if np.all(final_is_satisfied):
-        print("✓ Found acceptable solution (all exposures at or below targets)")
-    else:
-        print(f"! Could not fully satisfy all exposures after {max_attempts} attempts")
-        print("  Final exposures:")
-        for i, (satisfied, value, target) in enumerate(zip(final_is_satisfied, final_exposures, target_exposures)):
-            status = "OK" if satisfied else "VIOLATED"
-            print(f"    Factor {i}: {value:.6f} vs target {target:.6f} - {status}")
-    
+
     return best_weights
 
 def solve_with_capping(weights, review_subset, targets_subset, sustainable_factors, tilt_func, config, xtol=1e-6):
@@ -256,9 +230,6 @@ def solve_with_capping(weights, review_subset, targets_subset, sustainable_facto
     target_columns = [f"TargetValue_{factor}" for factor in sustainable_factors]
     targets = targets_subset[target_columns].values.flatten()
 
-    print(f"Sustainable factors: {sustainable_factors}")
-    print(f"Targets: {targets}")
-
     # Phase 1: Find weights that satisfy factor targets
     exponent_init = np.zeros(zscores.shape[1] if zscores.ndim > 1 else 1)
     
@@ -280,8 +251,6 @@ def solve_with_capping(weights, review_subset, targets_subset, sustainable_facto
     
     # Verify factor targets are hit
     factor_exposures = np.dot(tilted_weights, tscores)
-    print(f"Factor exposures after tilting: {factor_exposures}")
-    print(f"Target exposures: {targets}")
     
     # Phase 2: Apply weight constraints
     capacity_ratio = config["Capacity Ratio"]
@@ -391,19 +360,12 @@ def get_weights(review_dates, review_data, sustainable_factors, excluded_subsect
                         violations.append(factor)
 
             if not violations:
-                print("✅ No further violations. Solution found.")
-                print(f"Benchmark Intensity: {bmk_intensity}")
-                print(f"Upper bounds: {upper_bounds} - Achieved exposures: {achieved_exposure}")
-                print(f"Sum of weigths: {np.sum(tilted_weights_date)}")
-                print(f"Max Capacity Ratio: {max(tilted_weights_date / weights)}")
-                print(f"Max Weight: {max(tilted_weights_date)}")
                 for i, factor in enumerate(sustainable_factors):
                     reached_dict[factor].append(achieved_exposure[i])
 
                 # Break the loop if no violations are found    
                 solved = True
             else:
-                print(f"⚠️ Violations detected: {violations}")
                 active_factors.extend(violations)
                 attempts += 1
 
