@@ -65,6 +65,7 @@ def index_generation_page():
     
     with st.spinner("Generating index weights..."):
         # Get targets trajectory
+
         targets_df = ptf.get_targets(
             review_data, 
             sustainable_factors, 
@@ -120,6 +121,7 @@ def index_generation_page():
     constraints_df.set_index('Constraint', inplace=True)
 
     weights_constraints_df = pd.DataFrame(list(config.items()), columns=["Constraint", "Value"])
+    weights_constraints_df = weights_constraints_df[weights_constraints_df["Constraint"]!="Stock Bound"]
     weights_constraints_df.set_index("Constraint", inplace=True)
 
     # Export button

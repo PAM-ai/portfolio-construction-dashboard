@@ -468,7 +468,8 @@ def get_targets(review_data, sustainable_factors, targets, annual_trajectory_rat
         targets_df[f"ReviewIntensity_{factor}"] = bmk_intensities
         targets_df[f"TargetLevel_{factor}"] = target_levels
         targets_df[f"TargetValue_{factor}"] = target_values
-        targets_df[f"TargetLevelFromBaseBenchmark{factor}"] = targets_df["TargetValue_" + factor] / targets_df["BaseIntensity_" + factor]
+        targets_df[f"AnnualRate_{factor}"] = rate
+        targets_df[f"TargetLevelFromBaseBenchmark{factor}"] = np.where(targets_df[f"AnnualRate_{factor}"] != 0, targets_df[f"TargetValue_{factor}"] / targets_df[f"BaseIntensity_{factor}"], targets_df[f"TargetLevel_{factor}"])
 
     # Find the column name with the minimum value for each row
     targets_df['LargestReductionItem'] = targets_df[[f"TargetLevelFromBaseBenchmark{factor}" for factor in sustainable_factors]].idxmin(axis=1)
