@@ -6,6 +6,11 @@ import streamlit as st
 import os
 import pandas as pd
 
+def go_to(page_name):
+    """Helper function to navigate between pages."""
+    st.session_state.page = page_name
+    st.rerun()
+
 @st.cache_data
 def load_data():
     """
@@ -31,6 +36,17 @@ def selection_page():
     - Exclude specific sub-sectors from the portfolio.
     """
 
+    st.title("Sustainable Index Construction Dashboard - Configure Portfolio")
+
+    with st.sidebar.expander("🧩 **Tutorial: How to Configure Your Sustainable Portfolio**", expanded=True):
+        st.markdown("""
+        1. **Select Sustainability Factors**  
+        2. **Set Reduction Targets**  
+        3. **Configure Portfolio Parameters** *(Sidebar)*  
+        4. **Exclude Sub-Sectors** *(Optional)*  
+        """)
+
+
     with st.spinner("Loading data..."):
         review_data, prices = load_data()
     
@@ -41,15 +57,19 @@ def selection_page():
     # Define available sustainability factors
     sustainable_factors = ["Carbon Emissions", "Waste", "Water Usage"]
 
-    # --- STEP 1: SELECT CONSTRAINTS ---
-    st.header("Step 1: Select Constraints and Configure Portfolio")
-
     # Initialize session state for constraints and config if not already set
     st.session_state.setdefault('constraints', {})
     st.session_state.setdefault('config', {})
 
+    # --- STEP 1: SELECT CONSTRAINTS ---
+
+    st.markdown("#### Targets Selection")
+
+    if st.button("**Press here to Generate weights** ➡️", type="secondary", use_container_width=True):
+      go_to("Generate Weights")
+
     # User selects which sustainability factors to constrain
-    selected_items = st.multiselect("Select sustainability factors to constrain :", sustainable_factors)
+    selected_items = st.multiselect("Select sustainability factors to constrain :", sustainable_factors, default=["Carbon Emissions", "Water Usage"])
 
     # Reset constraints if selection changes
     st.session_state['constraints'] = {}
@@ -63,7 +83,7 @@ def selection_page():
                 # User inputs target reduction percentage
                 target_value = st.number_input(
                     f"Target Reduction (%) for {item}",
-                    min_value=0, max_value=100, value=30, step=5
+                    min_value=0, max_value=50, value=30, step=5
                 )
 
                 # Checkbox for enabling annual reduction rate
@@ -75,7 +95,7 @@ def selection_page():
                 with col2:
                     annual_reduction_rate = st.number_input(
                         f"Annual Reduction (%) for {item}",
-                        min_value=0.0, max_value=100.0, value=5.0, step=0.5
+                        min_value=0.0, max_value=10.0, value=5.0, step=0.5
                     )
 
             # Store constraints in session state with proper sign convention
@@ -92,7 +112,7 @@ def selection_page():
         "Capacity Ratio", min_value=10, value=10, step=1
     )
     st.session_state['config']['Max Weight'] = st.sidebar.number_input(
-        "Max Weight", min_value=0.05, value=0.05, step=0.01
+        "Max Weight", min_value=0.05, value=0.05, step=0.01,
     )
     st.session_state['config']['Stock Bound'] = st.sidebar.number_input(
         "Stock Bound", min_value=1, value=1, step=1
@@ -105,9 +125,9 @@ def selection_page():
         st.error(f"Error loading sub-sectors: {e}")
         sub_sectors_data = pd.DataFrame(columns=["Sector", "Sub-Sector"])
 
-    st.subheader("Sub-Sector Exclusions (Type below to search for and exclude sub-sectors)")
+    st.markdown("#### Sub-Sector Exclusions (Type below to search for and exclude sub-sectors)")
 
-    excluded_sub_sectors = st.multiselect("Select SubSectors to exclude from your index:", list(sub_sectors_data["Sub-Sector"].unique()))
+    excluded_sub_sectors = st.multiselect("Select SubSectors to exclude from your index:", list(sub_sectors_data["Sub-Sector"].unique()), default="Oil & Gas Integrated")
 
     # Store excluded sub-sectors in session state
     st.session_state['excluded_sub_sectors'] = excluded_sub_sectors

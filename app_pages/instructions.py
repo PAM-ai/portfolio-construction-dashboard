@@ -1,11 +1,22 @@
 import streamlit as st
 
+def go_to(page_name):
+    """Helper function to navigate between pages."""
+    st.session_state.page = page_name
+    st.rerun()
+
 def display_instructions_page():
+
+   st.title("Sustainable Index Construction Dashboard")
+
+   if st.button("**Start Building Your Sustainable Index** ➡️", type="primary", use_container_width=True):
+      go_to("Select Constraints")
+      
     # Description using markdown for better formatting
-    st.markdown("""
+   st.markdown("""
     **Welcome to the Sustainable Portfolio Design Application!**
     
-    This application built in Python enables you to design investment portfolios that align with your sustainability objectives—no coding required! The S&P 500 is used as the benchmark, with data from 2018 to present, sourced from YFinance. Sustainability scores for each constituent are synthetically generated based on their sector classification.
+    This application built in Python enables you to design investment portfolios that align with your sustainability objectives—**no coding required!** The S&P 500 is used as the benchmark, with data from 2018 to present, sourced from YFinance. Sustainability scores for each constituent are synthetically generated based on their sector classification.
 
     This tool employs the **Target Exposure methodology**, where sustainability data is treated as factors. The goal is to tilt portfolio weights to satisfy these constraints. To achieve this, we determine the exponent that indicates how much to tilt the weights to meet your sustainability exposure targets.
 
@@ -23,4 +34,6 @@ def display_instructions_page():
     
     **Ready to design your sustainable portfolio? Start now with just a few clicks!**
     """)
-
+   
+   
+   
