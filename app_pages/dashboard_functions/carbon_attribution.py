@@ -277,7 +277,7 @@ def display_sector_attribution(attribution_results, intensity_metric_name):
     # Display the chart
     st.plotly_chart(fig, use_container_width=True)
     
-def brinson_attribution_dashboard(review_data_output, achieved_targets_df, sustainable_factors):
+def brinson_attribution_dashboard(review_data_output, achieved_targets_df, selected_metric, selected_date):
     """
     Simplified function to display the Brinson intensity attribution dashboard
     
@@ -289,26 +289,6 @@ def brinson_attribution_dashboard(review_data_output, achieved_targets_df, susta
     sustainable_factors : list
         List of sustainable factors available for analysis
     """
-
-    # Get available review dates
-    available_dates = sorted(review_data_output["Review Date"].unique())
-    
-    # User inputs
-    col1, col2 = st.columns(2)
-    with col1:
-        selected_metric = st.selectbox(
-            "Select Intensity Metric",
-            options=sustainable_factors,
-            key="attribution_metric_select"
-        )
-    
-    with col2:
-        selected_date = st.selectbox(
-            "Select Review Date",
-            options=available_dates,
-            index=len(available_dates)-1,  # Default to most recent date
-            key="attribution_date_select"
-        )
     
     # Get sector column (adaptable to different dataset structures)
     sector_column = 'Sector' if 'Sector' in review_data_output.columns else next(

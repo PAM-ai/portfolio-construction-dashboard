@@ -114,7 +114,7 @@ Example: 0.05 means no stock exceeds 5%."""
     if not is_selection_valid:
         st.info("👇 Please select at least one sustainability factor above to enable portfolio generation.")
     else:
-        st.success("✅ You've selected sustainability factors. Configure your targets below, then click the button above when ready.")
+        st.success("✅ You've selected sustainability factors! Configure your targets below. You can also optionally exclude sub-sectors in the sidebar on the left. When you're ready, click the button above.")
     
     # Update selected_items from the multiselect for the rest of the function
     selected_items = st.session_state["selected_items"]

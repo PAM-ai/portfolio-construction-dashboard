@@ -143,7 +143,7 @@ def index_generation_page():
     else:
         st.sidebar.write("No Subsectors excluded for this index")
 
-    if st.button("⬅️ **Press here to Change Portfolio Targets and Settings** ", type="secondary", use_container_width=True):
+    if st.button("⬅️ **Press here to Change Portfolio Targets and Settings** ", type="primary", use_container_width=True):
       ut.go_to("Select Constraints")
 
     # Create tabs for Financial and Sustainable Analysis
@@ -169,14 +169,17 @@ def index_generation_page():
         
         st.markdown("> 📊 **Reminder:** Check the 📈 Financial Menu for performance and risk metrics.")
 
+        # User input menu for sustainable factors
+        st.markdown("#### Select Factor for Analysis")
+        selected_factor, selected_date, show_as_percentage, sort_by_bmk = footprint.display_selection_menu(review_data_output, sustainable_factors)
         # SECTION 1: Factor Breakdown Analysis
         # Calculate and display factor breakdown
         st.markdown("#### Sector Breakdown Analysis")
-        footprint.display_factor_breakdown(review_data_output, sustainable_factors)
+        footprint.display_factor_breakdown(review_data_output, selected_factor, selected_date, show_as_percentage, sort_by_bmk)
 
         # SECTION 2: Intensity Decomposition Analysis over Time
         st.markdown("#### Intensity Reduction Analysis (Brinson Style)")
-        attribution.brinson_attribution_dashboard(review_data_output, achieved_targets_df, sustainable_factors)
+        attribution.brinson_attribution_dashboard(review_data_output, achieved_targets_df, selected_factor, selected_date)
         
         
 

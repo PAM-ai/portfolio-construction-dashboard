@@ -120,7 +120,7 @@ def display_targets_evolution(achieved_targets_df, selected_item):
         # Plot chart in Streamlit
         st.plotly_chart(fig, use_container_width=True)
 
-def display_factor_breakdown(review_data_output, sustainable_factors):
+def display_selection_menu(review_data_output, sustainable_factors):
         
         # Set up the widgets for user input
         col1, col2 = st.columns(2)
@@ -147,6 +147,11 @@ def display_factor_breakdown(review_data_output, sustainable_factors):
         
         with col4:
             sort_by_bmk = st.checkbox("Sort by benchmark values", value=True)
+        
+        return selected_factor, selected_date, show_as_percentage, sort_by_bmk
+
+def display_factor_breakdown(review_data_output, selected_factor, selected_date, show_as_percentage, sort_by_bmk):
+        
 
         # Get the factor breakdown for the selected date and factor for each sector
         bmk_factor, index_factor = get_factors_breakdown(

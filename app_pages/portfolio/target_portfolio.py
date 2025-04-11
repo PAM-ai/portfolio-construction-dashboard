@@ -405,7 +405,7 @@ def get_targets(review_data, sustainable_factors, targets, annual_trajectory_rat
     targets_df = pd.DataFrame({"Review Date": review_dates})
 
     # Set exact target based on the maximum annual trajectory rate
-    exact_target = sustainable_factors[np.argmax(annual_trajectory_rate)] if np.any(annual_trajectory_rate > 0) else sustainable_factors[np.argmax(targets)]
+    exact_target = sustainable_factors[np.argmin(annual_trajectory_rate)] if np.any(annual_trajectory_rate > 0) else sustainable_factors[np.argmin(targets)]
 
     for i, factor in enumerate(sustainable_factors):
         base_date = review_dates[0]
@@ -432,6 +432,7 @@ def get_targets(review_data, sustainable_factors, targets, annual_trajectory_rat
         targets_df[f"ReviewIntensity_{factor}"] = bmk_intensities
         targets_df[f"TargetLevel_{factor}"] = target_levels
         targets_df[f"TargetValue_{factor}"] = target_values
+        
         #targets_df[f"AnnualRate_{factor}"] = rate
         #targets_df[f"TargetLevelFromBaseBenchmark{factor}"] = np.where(targets_df[f"AnnualRate_{factor}"] != 0, targets_df[f"TargetValue_{factor}"] / targets_df[f"BaseIntensity_{factor}"], targets_df[f"TargetLevel_{factor}"])
 
