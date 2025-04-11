@@ -110,8 +110,6 @@ def index_generation_page():
         Enjoy your analysis! 🚀
         """)
 
-
-
     # Get constraints in dataframe format for display and export
     constraints_df = pd.DataFrame({
     "Constraint": sustainable_factors,
@@ -162,8 +160,6 @@ def index_generation_page():
         index_perf_fig = perf.plot_index_performance(benchmark_returns, index_returns)
         st.plotly_chart(index_perf_fig, use_container_width=True)
 
-       
-
     # Sustainable Analysis Tab
     with tab2:
         
@@ -181,6 +177,3 @@ def index_generation_page():
         st.markdown("#### Intensity Reduction Analysis (Brinson Style)")
         attribution.brinson_attribution_dashboard(review_data_output, achieved_targets_df, selected_factor, selected_date)
         
-        
-
-
